@@ -1,0 +1,19 @@
+<h1>Hello World</h1>
+
+<form action="/press" method="POST">
+    <textarea name="payload" id="payload"></textarea>
+    <button type="submit">send</button>
+</form>
+
+<script>
+    document.querySelector('form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        fetch('/exec/payload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ payload: document.getElementById('payload').value })
+        });
+    });
+</script>
