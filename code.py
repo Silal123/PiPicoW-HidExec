@@ -44,7 +44,7 @@ PASSWORD = "12345678"
 
 logger.info("Starting accesspoint")
 
-wifi.radio.start_ap(ssid=SSID) # password=PASSWORD
+wifi.radio.start_ap(ssid=SSID, password=PASSWORD)
 
 while not wifi.radio.ap_active:
     logger.info("Waiting for accesspoint to start")
