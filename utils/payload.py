@@ -54,11 +54,17 @@ class PayloadExecutor():
         }
 
         self.special_char = {
-            "/": Keycode.FORWARD_SLASH,
-            "\\": Keycode.BACKSLASH,
-            ":": Keycode.QUOTE,
+            "/": [Keycode.SHIFT, Keycode.SEVEN],
+            "\\": [Keycode.ALTGR, Keycode.OEM_102],
+            ":": [Keycode.SHIFT, Keycode.PERIOD],
             ".": Keycode.PERIOD,
             ",": Keycode.COMMA,
+            "&": [Keycode.SHIFT, Keycode.SIX],
+            "=": [Keycode.SHIFT, Keycode.ZERO],
+            "?": [Keycode.SHIFT, 0x2D],
+            "\"": [Keycode.SHIFT, Keycode.TWO],
+            ">": [Keycode.SHIFT, Keycode.OEM_102],
+            "<": [Keycode.OEM_102]
         }
 
         self.numbers = {
@@ -142,6 +148,13 @@ class PayloadExecutor():
             if command == "TYPE":
                 self.logger.info("Typing: " + data)
                 for char in data:
+                    self.logger.debug(f"Typing Char: {char}, {self.translate_key(char)}")
+                    
+                    key = self.translate_key(char)
+                    if isinstance(key, list):
+                        self.keyboard.send(*self.translate_key(char))
+                        continue
+
                     self.keyboard.send(self.translate_key(char))
                 continue
 
@@ -188,6 +201,6 @@ class PayloadExecutor():
             return getattr(Keycode, self.numbers.get(int(key)))
 
         if key.isupper():
-            return (Keycode.SHIFT, getattr(Keycode, key.upper()))
+            return [Keycode.SHIFT, getattr(Keycode, key.upper())]
 
         return getattr(Keycode, key.upper())
