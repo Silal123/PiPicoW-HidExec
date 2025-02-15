@@ -7,7 +7,7 @@ def copy_to_usb(drive_letter: str, skip_items: set):
     destination_dir = f"{drive_letter}:\\"  # USB-Zielverzeichnis
     
     # Feste Ignore-Liste
-    ignore_list = {"upload.py", "adafruit_logging.py", "adafruit_hid", "adafruit_httpserver", "keycode_win_de.py", ".git", "adafruit_sdcard.py"}
+    ignore_list = {"upload.py", "adafruit_logging.py", "adafruit_hid", "adafruit_httpserver", "keycode_win_de.py", ".git", "adafruit_sdcard.py", "base64.py"}
     
     # Benutzerdefinierte Skip-Elemente hinzufügen
     ignore_list.update(skip_items)

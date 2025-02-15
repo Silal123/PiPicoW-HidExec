@@ -15,6 +15,9 @@ import board
 import microcontroller
 import socketpool
 import os
+import json
+import hashlib
+import struct
 
 import usb_hid
 from adafruit_hid.mouse import Mouse
@@ -60,20 +63,13 @@ logger.info(f"IP: {wifi.radio.ipv4_gateway_ap}")
 pool = socketpool.SocketPool(wifi.radio)
 server = Server(pool, debug=True)
 
-server.headers = {
-
-}
-
-@server.route("/", methods=[POST, adafruit_httpserver.PUT, adafruit_httpserver.DELETE, adafruit_httpserver.PATCH])
-def main_other(request: Request):
-    logger.debug(f"/: {request.method}")
-
-    return Response(request, "Hi")
-
 @server.route("/")
 def main(request: Request):
-    
     return FileResponse(request, filename='index.html', root_path='/www')
+
+@server.route("/tailwind")
+def tailwind(request: Request):
+    return FileResponse(request, filename='tailwind.css', root_path='/www')
 
 @server.route("/exec/payload", POST)
 def exec_payload(request: Request):
@@ -84,11 +80,7 @@ def exec_payload(request: Request):
 
     return JSONResponse(request, {"status": "executer"})
 
-@server.route("/tailwind")
-def tailwind(request: Request):
-    return FileResponse(request, filename='tailwind.css', root_path='/www')
-
-server.serve_forever(str(wifi.radio.ipv4_gateway_ap), 80)
+server.start(str(wifi.radio.ipv4_gateway_ap), 80)
 
 while True:
-    time.sleep(10)
+    server.poll()
