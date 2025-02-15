@@ -8,11 +8,13 @@ logger.info("Starting...")
 import time
 
 import wifi
-from adafruit_httpserver import Server, Request, Response, Websocket, GET, POST, JSONResponse, FileResponse
+from adafruit_httpserver import Server, Request, Response, Websocket, GET, POST, JSONResponse, FileResponse, Redirect
+import adafruit_httpserver
 
 import board
 import microcontroller
 import socketpool
+import os
 
 import usb_hid
 from adafruit_hid.mouse import Mouse
@@ -21,6 +23,7 @@ from adafruit_hid.keycode import Keycode as AdKeycode
 from keycode_win_de import Keycode
 
 from utils.payload import PayloadExecutor
+from utils.dns import CaptivePortalDns
 
 logger.info("Imports done")
 
@@ -41,7 +44,7 @@ PASSWORD = "12345678"
 
 logger.info("Starting accesspoint")
 
-wifi.radio.start_ap(ssid=SSID, password=PASSWORD)
+wifi.radio.start_ap(ssid=SSID) # password=PASSWORD
 
 while not wifi.radio.ap_active:
     logger.info("Waiting for accesspoint to start")
@@ -61,8 +64,15 @@ server.headers = {
 
 }
 
+@server.route("/", methods=[POST, adafruit_httpserver.PUT, adafruit_httpserver.DELETE, adafruit_httpserver.PATCH])
+def main_other(request: Request):
+    logger.debug(f"/: {request.method}")
+
+    return Response(request, "Hi")
+
 @server.route("/")
 def main(request: Request):
+    
     return FileResponse(request, filename='index.html', root_path='/www')
 
 @server.route("/exec/payload", POST)
@@ -70,14 +80,15 @@ def exec_payload(request: Request):
     data = request.json()
     payload = data["payload"]
 
-    PayloadExecutor(logger, keyboard).execute_playload(payload)
+    PayloadExecutor(logger, keyboard, mouse).execute_playload(payload)
 
     return JSONResponse(request, {"status": "executer"})
 
-server.serve_forever(str(wifi.radio.ipv4_gateway_ap))
+@server.route("/tailwind")
+def tailwind(request: Request):
+    return FileResponse(request, filename='tailwind.css', root_path='/www')
+
+server.serve_forever(str(wifi.radio.ipv4_gateway_ap), 80)
 
 while True:
     time.sleep(10)
-    pass
-
-#keyboard.send(Keycode.SHIFT, Keycode.A)

@@ -1,14 +1,16 @@
 import time 
 from adafruit_hid.keycode import Keycode as AdaKeycode
 from adafruit_hid.keyboard import Keyboard
+from adafruit_hid.mouse import Mouse
 from keycode_win_de import Keycode
 
 import adafruit_logging as logging
 
 class PayloadExecutor():
-    def __init__(self, logger: logging.Logger, keyboard: Keyboard):
+    def __init__(self, logger: logging.Logger, keyboard: Keyboard, mouse: Mouse):
         self.logger = logger
         self.keyboard = keyboard
+        self.mouse = mouse
 
         self.special_keys = {
             "ENTER": Keycode.ENTER,
@@ -88,59 +90,89 @@ class PayloadExecutor():
             self.logger.info("Executing line: " + line)
             words = line.split(" ")
 
-            commands = {
-                "SLEEP": "sleep",
-                "PRESS": "press",
-                "RELEASE": "release",
-                "RELEASE_ALL": "release_all",
-                "TYPE": "type",
-            }
+            command = words[0]
+            data = line[(len(command) + 1):]
 
-            if words[0] in commands:
-                command = words[0]
-                data = line[(len(command) + 1):]
-
-                if command == "SLEEP":
-                    self.logger.info(f"Sleeping for {data} seconds!")
-                    try:
-                        time.sleep(float(data))
-                    except:
-                        self.logger.error(f"Could not cast {data} to float in SLEEP command!")
-                        pass
-                    continue
-                
-                if command == "PRESS":
-                    keys = data.split(" ")
-
-                    for key in keys:
-                        self.logger.info("Pressing key: " + key)
-                        self.keyboard.press(self.translate_key(key))
-                        
-                    continue
-                
-                if command == "RELEASE":
-                    keys = data.split(" ")
-
-                    for key in keys:
-                        self.logger.info("Releasing key: " + key)
-                        self.keyboard.release(self.translate_key(key))
-
-                    continue
-                
-                if command == "RELEASE_ALL":
-                    self.logger.info("Releasing all keys")
-                    self.keyboard.release_all()
-                    continue
-                
-                if command == "TYPE":
-                    self.logger.info("Typing: " + data)
-                    for char in data:
-                        self.keyboard.send(self.translate_key(char))
-                    continue
-                
-            else:
-                # Command not fount!
+            if command == "SLEEP":
+                self.logger.info(f"Sleeping for {data} seconds!")
+                try:
+                    time.sleep(float(data))
+                except:
+                    self.logger.error(f"Could not cast {data} to float in SLEEP command!")
+                    pass
                 continue
+
+            if command == "PR":
+                keys = data.split(" ")
+
+                for key in keys:
+                    self.logger.info("Pressing key: " + key)
+                    self.keyboard.press(self.translate_key(key))
+
+                time.sleep(0.1)
+
+                for key in keys:
+                    self.logger.info("Releasing key: " + key)
+                    self.keyboard.release(self.translate_key(key))
+                continue
+                
+            if command == "PRESS":
+                keys = data.split(" ")
+
+                for key in keys:
+                    self.logger.info("Pressing key: " + key)
+                    self.keyboard.press(self.translate_key(key))
+                        
+                continue
+                
+            if command == "RELEASE":
+                keys = data.split(" ")
+
+                for key in keys:
+                    self.logger.info("Releasing key: " + key)
+                    self.keyboard.release(self.translate_key(key))
+
+                continue
+                
+            if command == "RELEASE_ALL":
+                self.logger.info("Releasing all keys")
+                self.keyboard.release_all()
+                continue
+                
+            if command == "TYPE":
+                self.logger.info("Typing: " + data)
+                for char in data:
+                    self.keyboard.send(self.translate_key(char))
+                continue
+
+            # ! Mouse commands
+
+            if command == "MOVE":
+                self.logger.info("Moving mouse")
+                x, y = data.split(" ")
+                self.mouse.move(int(x), int(y))
+                continue
+
+            if command == "CLICK":
+                self.logger.info("Clicking mouse")
+                self.mouse.click(Mouse.LEFT_BUTTON)
+                continue
+
+            if command == "RIGHT_CLICK":
+                self.logger.info("Right clicking mouse")
+                self.mouse.click(Mouse.RIGHT_BUTTON)
+                continue
+
+            if command == "SCROLL":
+                self.logger.info("Scrolling mouse")
+                wheel = data.split(" ")[0]
+                self.mouse.move(wheel=int(wheel))
+                continue
+                
+
+            self.logger.debug("Unknown command: " + command)
+            continue
+                
             
     def translate_key(self, key: str):
         if key == " ":
@@ -156,6 +188,6 @@ class PayloadExecutor():
             return getattr(Keycode, self.numbers.get(int(key)))
 
         if key.isupper():
-            return Keycode.SHIFT, getattr(Keycode, key.upper())
+            return (Keycode.SHIFT, getattr(Keycode, key.upper()))
 
         return getattr(Keycode, key.upper())
