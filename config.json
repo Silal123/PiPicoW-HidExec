@@ -1,0 +1,43 @@
+{
+    "onplugin_example": {
+        "action": "FILE",
+        "file": "payload.txt"
+    },
+    "onplugin_example": {
+        "action": "TEMPLATE",
+        "template": "rickroll"
+    },
+    "wifi": {
+        "ssid": "TestESP",
+        "password": "12345678"
+    },
+    "templates": {
+        "rickroll": [
+            "PR WIN r",
+            "SLEEP 0.1",
+            "TYPE cmd /c start https://youtu.be/dQw4w9WgXcQ?si=e7YQIXwcrGH9m84W && exit",
+            "SLEEP 0.1",
+            "PR ENTER",
+            "RELEASE_ALL"
+        ],
+        "print_text": [
+            "PR WIN r",
+            "SLEEP 0.1",
+            "TYPE cmd",
+            "SLEEP 0.1",
+            "PRESS ENTER",
+            "SLEEP 0.3",
+            "TYPE echo Hi :D",
+            "PRESS ENTER",
+            "RELEASE_ALL"
+        ],
+        "print_t_2": [
+            "PR WIN r",
+            "SLEEP 0.1",
+            "TYPE cmd /c echo Hi :D && pause",
+            "SLEEP 0.1",
+            "PR ENTER",
+            "RELEASE_ALL"
+        ]
+    }
+}

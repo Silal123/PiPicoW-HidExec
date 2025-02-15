@@ -27,6 +27,7 @@ from keycode_win_de import Keycode
 
 from utils.payload import PayloadExecutor
 from utils.dns import CaptivePortalDns
+from utils import config
 
 logger.info("Imports done")
 
@@ -39,11 +40,46 @@ logger.info("Keyboard initialized")
 logger.info("Running...")
 time.sleep(0.5)
 
+if config.get('onplugin'):
+    logger.info("ONPLUGIN found!")
+    action = config.get('onplugin.action')
+    logger.info(f"Onplugin Action: {action}")
+
+    if action == "FILE":
+        if config.get('onplugin.file'):
+            file = config.get('onplugin.file')
+            logger.info("File: " + file)
+            with open(file, 'r') as file:
+                data = ""
+                for x in file:
+                    data += x.strip() + "\n"
+                data.strip()
+
+                logger.info(f"File data: {data.replace(" ", ".").replace("\n", "!NEXTLINE!\n")}")
+                try:
+                    PayloadExecutor(logger, keyboard, mouse).execute_playload(data)
+                except Exception as e:
+                    logger.error(e)
+                keyboard.release_all()
+
+    elif action == "TEMPLATE":
+        if config.get('onplugin.template'):
+            template = config.get('onplugin.template')
+            logger.info("Template: " + template)
+            templates_d = config.get('templates')
+            if template in templates_d:
+                try:
+                    PayloadExecutor(logger, keyboard, mouse).execute_playload("\n".join(templates_d[template]))
+                except Exception as e:
+                    logger.error(e)
+                keyboard.release_all()
+
+
 
 # ! Accesspoint
 
-SSID = "TestESP"
-PASSWORD = "12345678"
+SSID = config.get("wifi.ssid") if config.get("wifi.ssid") else "TestESP"
+PASSWORD = config.get("wifi.password") if config.get("wifi.password") else "12345678"
 
 logger.info("Starting accesspoint")
 
@@ -70,6 +106,11 @@ def main(request: Request):
 @server.route("/tailwind")
 def tailwind(request: Request):
     return FileResponse(request, filename='tailwind.css', root_path='/www')
+
+@server.route("/templates")
+def templates(request: Request):
+    templates = config.get("templates")
+    return JSONResponse(request, templates)
 
 @server.route("/exec/payload", POST)
 def exec_payload(request: Request):

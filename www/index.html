@@ -38,6 +38,8 @@
     </div>
     
     <script>
+        let templates = {}
+
         function downloadContent() {
             const text = document.getElementById("text").value;
             const blob = new Blob([text], { type: "text/plain" });
@@ -47,6 +49,28 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        window.addEventListener('load', loadTemplates);
+
+        function loadTemplates() {
+            fetch('/templates', { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('poption');
+
+                    console.log(data)
+
+                    Object.keys(data).forEach(key => {
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = key;
+                        select.appendChild(option);
+                    });
+
+                    templates = data
+                })
+                .catch(error => console.error("Error loading Templates", error));
         }
 
         document.querySelector('form').addEventListener('submit', function (e) {
@@ -68,15 +92,24 @@
 
         document.getElementById('poption').addEventListener('change', function (e) {
             const p = document.getElementById('poption')
-            
+            const text = document.getElementById('text')
+            const file = document.getElementById('payload_file')
+
             if (p.value == 'custom') {
-                document.getElementById('text').classList.remove('hidden');
-                document.getElementById('payload_file').classList.add('hidden');
+                text.classList.remove('hidden');
+                file.classList.add('hidden');
             }
 
             if (p.value == 'file') {
-                document.getElementById('text').classList.add('hidden');
-                document.getElementById('payload_file').classList.remove('hidden');
+                text.classList.add('hidden');
+                file.classList.remove('hidden');
+            }
+
+            if (p.value in templates) {
+                text.classList.remove('hidden');
+                file.classList.add('hidden');
+
+                text.value = templates[p.value].join('\n')
             }
         });
 

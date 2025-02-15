@@ -188,8 +188,11 @@ class PayloadExecutor():
                 
             
     def translate_key(self, key: str):
+        self.logger.debug(f"Translating: {key}, Upper: {key.upper()}")
         if key == " ":
             return Keycode.SPACE
+        
+        #key = key.strip()
 
         if key in self.special_keys:
             return self.special_keys.get(key)

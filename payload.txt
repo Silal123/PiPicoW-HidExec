@@ -1,0 +1,7 @@
+PR WIN r
+TYPE cmd
+SLEEP 0.1
+PR ENTER
+SLEEP 0.5
+TYPE echo Hi
+PR ENTER
