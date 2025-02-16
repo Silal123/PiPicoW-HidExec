@@ -32,11 +32,12 @@ jobs:
       - name: Prepare project files
         run: |
           mkdir -p build/circuitpython
-          cp -r uf2/utils/uf2conv.py .
+          cp -r uf2/utils .
           cp -r code.py boot.py utils lib www build/circuitpython/
 
       - name: Build CircuitPython UF2
         run: |
+          ls
           python uf2conv.py build/circuitpython --base 0x10000000 --family 0xE48BFF56 -o build/uf2/project.uf2
 
       - name: Upload UF2 package
