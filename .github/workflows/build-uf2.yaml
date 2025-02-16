@@ -48,7 +48,7 @@ jobs:
           ./uf2conv ../../build/circuitpython_fs.img --base 0x10000000 --family 0xE48BFF56 -o ../../build/project.uf2
 
       - name: Upload UF2 package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pico-w-project-uf2
           path: build/project.uf2
