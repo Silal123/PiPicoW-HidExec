@@ -39,7 +39,7 @@ jobs:
           circuitpython-build-tools --build build/circuitpython --output build/uf2
 
       - name: Upload UF2 package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pico-w-project-uf2
           path: build/uf2/*.uf2
