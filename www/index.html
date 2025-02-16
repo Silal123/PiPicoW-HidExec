@@ -3,131 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payload</title>
-    <!--  -->
+    <title>Main</title>
     <link rel="stylesheet" href="/tailwind">
-    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
-
-    <style>
-
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="body bg-zinc-900">
+<body class="bg-zinc-900 text-white">
     <div style="display: contents;">
         <div class="container w-screen h-dvh items-center flex flex-col gap-4 justify-center relative">
-            <h1 class="heading text-white font-bold text-lg sm:text-xl">Payload</h1>
-            <div class="form-container flex flex-col w-5/6 h-5/6 sm:w-5/6 sm:h-4/6 gap-3 text-white">
-                <div class="w-full flex flex-col sm:flex-row gap-2">
-                    <select id="poption" class="selection bg-zinc-600 rounded-lg p-1.5 border-none outline-none w-full" name="payload_option" id="payload_option">
-                        <option value="custom">Custom</option>
-                        <option value="file">File</option>
-                    </select>
-                <!-- <button class="p-2 bg-green-600 rounded-lg">Custom</button> -->
-                </div>
-                <form action="" class="form h-full flex flex-col gap-2">
-                    <textarea id="text" class="text w-full h-full text-lg bg-zinc-600 rounded-lg border-none outline-none p-2" name="payload" id="payload"></textarea>
-                    <input class="file bg-zinc-600 p-2 rounded-lg file:bg-green-600 file:border-none file:p-1.5 file:rounded-lg file:mr-2 max-sm:file:flex hidden" type="file" name="file" id="payload_file" accept=".txt">
-                    <div class="button-container flex sm:flex-row flex-col justify-center gap-2">
-                        <button class="submit-button bg-green-600 rounded-lg p-2 font-bold" type="submit">Submit</button>
-                        <button class="download-button bg-blue-600 rounded-lg p-2 font-bold" type="button" onclick="downloadContent()">Download</button>
-                        <button class="reset-button bg-red-600 rounded-lg p-2 font-bold" type="reset">Reset</button>
-                    </div>
-                </form>
+            <h1 class="heading text-white font-bold text-lg sm:text-xl">Main Page</h1>
+            <div class="form-container flex flex-col max-sm:w-5/6 h-5/6 sm:w-5/6 sm:h-4/6 gap-3 text-white">
+                <a class="p-1.5 bg-green-600 rounded-lg text-center w-full" href="/payload">Payload</a>
+                <a class="p-1.5 bg-blue-600 rounded-lg text-center w-full" href="/config">Config</a>
+                <a class="p-1.5 bg-orange-600 rounded-lg text-center w-full" href="/mouse">Mouse</a>
             </div>
         </div>
     </div>
-    
-    <script>
-        let templates = {}
-
-        function downloadContent() {
-            const text = document.getElementById("text").value;
-            const blob = new Blob([text], { type: "text/plain" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "payload.txt";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        window.addEventListener('load', loadTemplates);
-
-        function loadTemplates() {
-            fetch('/templates', { method: 'GET' })
-                .then(response => response.json())
-                .then(data => {
-                    const select = document.getElementById('poption');
-
-                    console.log(data)
-
-                    Object.keys(data).forEach(key => {
-                        const option = document.createElement('option');
-                        option.value = key;
-                        option.textContent = key;
-                        select.appendChild(option);
-                    });
-
-                    templates = data
-                })
-                .catch(error => console.error("Error loading Templates", error));
-        }
-
-        document.querySelector('form').addEventListener('submit', function (e) {
-            e.preventDefault();
-            fetch('/exec/payload', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ payload: document.getElementById('text').value })
-            });
-        });
-
-        document.querySelector('form').addEventListener('reset', function (e) {
-            document.getElementById('text').value = '';
-            document.getElementById('payload_file').value = '';
-            document.getElementById('poption').value = 'custom';
-        });
-
-        document.getElementById('poption').addEventListener('change', function (e) {
-            const p = document.getElementById('poption')
-            const text = document.getElementById('text')
-            const file = document.getElementById('payload_file')
-
-            if (p.value == 'custom') {
-                text.classList.remove('hidden');
-                file.classList.add('hidden');
-            }
-
-            if (p.value == 'file') {
-                text.classList.add('hidden');
-                file.classList.remove('hidden');
-            }
-
-            if (p.value in templates) {
-                text.classList.remove('hidden');
-                file.classList.add('hidden');
-
-                text.value = templates[p.value].join('\n')
-            }
-        });
-
-        document.getElementById('payload_file').addEventListener('change', function (e) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            const text = document.getElementById('text');
-            const target = document.getElementById('payload_file');
-
-            reader.onload = function (e) {
-                text.classList.remove('hidden');
-                text.value = e.target.result;
-                target.value = '';
-                target.classList.add('hidden');
-            }
-
-            reader.readAsText(file);
-        });
-    </script>
 </body>
 </html>

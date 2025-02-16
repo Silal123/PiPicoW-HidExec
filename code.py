@@ -104,6 +104,14 @@ server = Server(pool, debug=True)
 def main(request: Request):
     return FileResponse(request, filename='index.html', root_path='/www')
 
+@server.route("/payload")
+def payload(request: Request):
+    return FileResponse(request, filename='payload.html', root_path='/www')
+
+@server.route("/mouse")
+def mouse_req(request: Request):
+    return FileResponse(request, filename='mouse.html', root_path='/www')
+
 @server.route("/tailwind")
 def tailwind(request: Request):
     return FileResponse(request, filename='tailwind.css', root_path='/www')
@@ -121,10 +129,6 @@ def restart(request: Request):
 @server.route("/config", GET)
 def config_r(request: Request):
     return FileResponse(request, filename='config.html', root_path='/www')
-
-@server.route("/config/tailwind", GET)
-def config_tailwind(request: Request):
-    return FileResponse(request, filename='config.css', root_path='/www')
 
 @server.route("/config/data", GET)
 def config_get(request: Request):
@@ -151,6 +155,41 @@ def exec_payload(request: Request):
     PayloadExecutor(logger, keyboard, mouse).execute_playload(payload)
 
     return JSONResponse(request, {"status": "executer"})
+
+@server.route("/mouse/move", POST)
+def mouse_move(request: Request):
+    data = request.json()
+
+    if not "action" in data:
+        return Response(request, "", status=adafruit_httpserver.BAD_REQUEST_400)
+    
+    if data["action"] == "MOVE":
+        if not "x" and "y" in data:
+            return Response(request, "", status=adafruit_httpserver.BAD_REQUEST_400)
+        
+        try:
+            x = int(data["x"])
+            y = int(data["y"])
+            scroll = int(data["scroll"])
+        except Exception as e:
+            logger.error(f"Error in mouse move: {e}")
+
+        mouse.move(x, y, scroll)
+        return Response(request, "", status=adafruit_httpserver.OK_200)
+    
+    if data["action"] == "CLICK":
+        if not "button" in data:
+            return Response(request, "", status=adafruit_httpserver.BAD_REQUEST_400)
+        
+        button = data["button"]
+
+        if button == "LEFT":
+            mouse.click(Mouse.LEFT_BUTTON)
+
+        if button == "RIGTH":
+            mouse.click(Mouse.RIGHT_BUTTON)
+
+        return Response(request, "", status=adafruit_httpserver.OK_200)
 
 server.start(str(wifi.radio.ipv4_gateway_ap), 80)
 
