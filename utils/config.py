@@ -2,6 +2,8 @@ import json
 
 json_data = {}
 
+file = 'config.json'
+
 def file_exists(file: str) -> bool:
     try:
         with open(file, 'r') as f:

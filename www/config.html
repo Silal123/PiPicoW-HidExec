@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Config</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-900 text-white">
+    <div style="display: contents;">
+        <div class="container w-screen h-dvh items-center flex flex-col gap-4 justify-center relative">
+            <h1 id="heading" class="heading text-white font-bold text-lg sm:text-xl text-red-500">Config</h1>
+            <div class="form-container flex flex-col w-5/6 h-5/6 sm:w-5/6 sm:h-4/6 gap-3 text-white">
+                <form id="form" action="" class="form h-full flex flex-col gap-2">
+                    <textarea id="text" class="text w-full h-full text-lg bg-zinc-600 rounded-lg border-none outline-none p-2" name="payload" id="payload"></textarea>
+                    <div class="button-container flex sm:flex-row flex-col justify-center gap-2">
+                        <button class="submit-button bg-green-600 rounded-lg p-2 font-bold" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', loadConfig);
+
+        const text = document.getElementById('text');
+        const form = document.getElementById('form');
+
+        function loadConfig() {
+            fetch('/config/data', { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    text.value = data;
+                })
+                .catch(error => console.error("Error loading Templates", error));
+        }
+
+        form.addEventListener('submit',  function(event) {
+            event.preventDefault()
+            fetch('/config/data', { method: 'POST', body: text.value })
+            .then(response => {
+                if (response.status === 403) {
+                    document.getElementById('heading').classList.remove('text-white');
+                }
+            });
+        })
+    </script>
+</body>
+</html>

@@ -18,6 +18,7 @@ import os
 import json
 import hashlib
 import struct
+import supervisor
 
 import usb_hid
 from adafruit_hid.mouse import Mouse
@@ -111,6 +112,36 @@ def tailwind(request: Request):
 def templates(request: Request):
     templates = config.get("templates")
     return JSONResponse(request, templates)
+
+@server.route("/reload")
+def restart(request: Request):
+    supervisor.reload()
+    return Response(request, "")
+
+@server.route("/config", GET)
+def config_r(request: Request):
+    return FileResponse(request, filename='config.html', root_path='/www')
+
+@server.route("/config/tailwind", GET)
+def config_tailwind(request: Request):
+    return FileResponse(request, filename='config.css', root_path='/www')
+
+@server.route("/config/data", GET)
+def config_get(request: Request):
+    try:
+        with open(config.file, 'r') as file:
+            return JSONResponse(request, file.read())
+    except Exception as e:
+        logger.error(f"Error reading config: {e}")
+
+@server.route("/config/data", POST)
+def config_post(request: Request):
+    data = request.json()
+    try:
+        with open(config.file, 'w') as file:
+            file.write(data)
+    except Exception as e:
+        return Response(request, "", status=adafruit_httpserver.FORBIDDEN_403)
 
 @server.route("/exec/payload", POST)
 def exec_payload(request: Request):

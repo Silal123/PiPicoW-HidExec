@@ -8,7 +8,7 @@
         "template": "rickroll"
     },
     "wifi": {
-        "ssid": "TestESP",
+        "ssid": "Fritz321",
         "password": "12345678"
     },
     "templates": {
