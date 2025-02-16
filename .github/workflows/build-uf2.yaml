@@ -28,7 +28,7 @@ jobs:
           sudo apt update
           sudo apt install -y git build-essential cmake
           git clone https://github.com/microsoft/uf2.git
-          cd uf2/utils
+          cd uf2/uf2tool
           make
           sudo cp uf2conv /usr/local/bin/
 
