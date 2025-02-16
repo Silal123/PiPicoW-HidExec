@@ -28,18 +28,16 @@ jobs:
           sudo apt update
           sudo apt install -y git build-essential cmake
           git clone https://github.com/microsoft/uf2.git
-          cd uf2/uf2tool
-          make
-          sudo cp uf2conv /usr/local/bin/
 
       - name: Prepare project files
         run: |
           mkdir -p build/circuitpython
+          cp -r uf2/utils/uf2conv.py .
           cp -r code.py boot.py utils lib www build/circuitpython/
 
       - name: Build CircuitPython UF2
         run: |
-          uf2conv build/circuitpython --base 0x10000000 --family 0xE48BFF56 -o build/uf2/project.uf2
+          python uf2conv.py build/circuitpython --base 0x10000000 --family 0xE48BFF56 -o build/uf2/project.uf2
 
       - name: Upload UF2 package
         uses: actions/upload-artifact@v4
