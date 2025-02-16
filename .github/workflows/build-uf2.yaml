@@ -1,0 +1,45 @@
+name: Build CircuitPython UF2
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install CircuitPython UF2 tooling
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip zip
+          pip install circuitpython-build-tools
+
+      - name: Prepare project files
+        run: |
+          mkdir -p build/circuitpython
+          cp -r code.py boot.py utils lib www build/circuitpython/
+
+      - name: Build CircuitPython UF2
+        run: |
+          circuitpython-build-tools --build build/circuitpython --output build/uf2
+
+      - name: Upload UF2 package
+        uses: actions/upload-artifact@v3
+        with:
+          name: pico-w-project-uf2
+          path: build/uf2/*.uf2
