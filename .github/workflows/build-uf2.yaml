@@ -23,25 +23,32 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install makeuf2
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y git build-essential cmake
-          git clone https://github.com/microsoft/uf2.git
+          sudo apt install -y git build-essential python3-pip
+          pip install adafruit-nvm
 
       - name: Prepare project files
         run: |
           mkdir -p build/circuitpython
-          cp -r uf2/utils .
-          cp -r code.py boot.py utils lib www build/circuitpython/
+          cp -r code.py boot.py utils lib build/circuitpython/
 
-      - name: Build CircuitPython UF2
+      - name: Create CircuitPython filesystem image
         run: |
-          ls
-          python uf2/utils/uf2conv.py build/circuitpython --base 0x10000000 --family 0xE48BFF56 -o build/uf2/project.uf2
+          git clone https://github.com/adafruit/circuitpython.git
+          cd circuitpython/tools
+          python3 makeimg.py --filesystem --output ../../build/circuitpython_fs.img ../../build/circuitpython/
+
+      - name: Convert filesystem image to UF2
+        run: |
+          git clone https://github.com/microsoft/uf2.git
+          cd uf2/utils
+          make
+          ./uf2conv ../../build/circuitpython_fs.img --base 0x10000000 --family 0xE48BFF56 -o ../../build/project.uf2
 
       - name: Upload UF2 package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: pico-w-project-uf2
-          path: build/uf2/project.uf2
+          path: build/project.uf2
