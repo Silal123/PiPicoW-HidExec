@@ -23,11 +23,14 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install CircuitPython UF2 tooling
+      - name: Install makeuf2
         run: |
           sudo apt update
-          sudo apt install -y python3-pip zip
-          pip install circuitpython-build-tools
+          sudo apt install -y git build-essential cmake
+          git clone https://github.com/microsoft/uf2.git
+          cd uf2/utils
+          make
+          sudo cp uf2conv /usr/local/bin/
 
       - name: Prepare project files
         run: |
@@ -36,10 +39,10 @@ jobs:
 
       - name: Build CircuitPython UF2
         run: |
-          circuitpython-build-tools --build build/circuitpython --output build/uf2
+          uf2conv build/circuitpython --base 0x10000000 --family 0xE48BFF56 -o build/uf2/project.uf2
 
       - name: Upload UF2 package
         uses: actions/upload-artifact@v4
         with:
           name: pico-w-project-uf2
-          path: build/uf2/*.uf2
+          path: build/uf2/project.uf2
