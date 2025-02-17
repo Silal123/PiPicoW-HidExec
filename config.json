@@ -3,7 +3,7 @@
         "action": "FILE",
         "file": "payload.txt"
     },
-    "onplugin_example": {
+    "onplugin_example_template": {
         "action": "TEMPLATE",
         "template": "rickroll"
     },

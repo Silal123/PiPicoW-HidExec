@@ -39,7 +39,7 @@
 
         form.addEventListener('submit',  function(event) {
             event.preventDefault()
-            fetch('/config/data', { method: 'POST', body: text.value })
+            fetch('/config/data', { method: 'POST', body: JSON.stringify({ data: text.value }) })
             .then(response => {
                 if (response.status === 403) {
                     document.getElementById('heading').classList.remove('text-white');

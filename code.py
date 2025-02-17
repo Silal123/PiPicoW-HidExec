@@ -41,10 +41,12 @@ logger.info("Keyboard initialized")
 logger.info("Running...")
 time.sleep(0.5)
 
+# ! Startup Execute
 if config.get('onplugin'):
     logger.info("ONPLUGIN found!")
     action = config.get('onplugin.action')
     logger.info(f"Onplugin Action: {action}")
+    time.sleep(2)
 
     if action == "FILE":
         if config.get('onplugin.file'):
@@ -74,8 +76,6 @@ if config.get('onplugin'):
                 except Exception as e:
                     logger.error(e)
                 keyboard.release_all()
-
-
 
 # ! Accesspoint
 
@@ -143,7 +143,7 @@ def config_post(request: Request):
     data = request.json()
     try:
         with open(config.file, 'w') as file:
-            file.write(data)
+            file.write(str(data["data"]))
     except Exception as e:
         return Response(request, "", status=adafruit_httpserver.FORBIDDEN_403)
 
